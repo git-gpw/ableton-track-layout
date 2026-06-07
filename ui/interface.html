@@ -2,22 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Dialog</title>
-    <script>
-      // Send a result back to the extension host and close this dialog.
-      // The string you pass becomes the value `dialog.show(...)` resolves with.
-      function closeWithResult(result) {
-        const message = { method: "close_and_send", params: [result] };
-        if (window.webkit?.messageHandlers?.live) {
-          window.webkit.messageHandlers.live.postMessage(message);
-        } else if (window.chrome?.webview) {
-          window.chrome.webview.postMessage(message);
-        }
+    <title>Set Template</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #1e1e1e;
+        color: #d4d4d4;
       }
-    </script>
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: #ffffff;
+      }
+
+      p {
+        margin: 0 0 10px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+    </style>
   </head>
   <body>
-    <p>Hello from your extension's UI.</p>
-    <button onclick="closeWithResult('ok')">Close</button>
+    <h1>Set Template</h1>
+    <p>Right-click a MIDI or audio track in Live to save or load a track layout.</p>
+    <p>Use Save Track Layout to capture the current set, then Load Track Template to recreate it.</p>
   </body>
 </html>
