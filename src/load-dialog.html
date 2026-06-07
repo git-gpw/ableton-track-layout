@@ -206,13 +206,23 @@
       });
     }
 
+    function closeWithResult(result) {
+      const message = { method: "close_and_send", params: [JSON.stringify(result)] };
+
+      if (window.webkit?.messageHandlers?.live) {
+        window.webkit.messageHandlers.live.postMessage(message);
+      } else if (window.chrome?.webview) {
+        window.chrome.webview.postMessage(message);
+      }
+    }
+
     function load() {
       if (!selectedPath) return;
-      window.liveExtension.closeDialog(JSON.stringify({ templatePath: selectedPath }));
+      closeWithResult({ templatePath: selectedPath });
     }
 
     function cancel() {
-      window.liveExtension.cancelDialog();
+      window.close();
     }
 
     document.addEventListener("keydown", (e) => {

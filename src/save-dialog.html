@@ -163,13 +163,23 @@
       saveBtn.disabled = nameInput.value.trim().length === 0;
     });
 
+    function closeWithResult(result) {
+      const message = { method: "close_and_send", params: [JSON.stringify(result)] };
+
+      if (window.webkit?.messageHandlers?.live) {
+        window.webkit.messageHandlers.live.postMessage(message);
+      } else if (window.chrome?.webview) {
+        window.chrome.webview.postMessage(message);
+      }
+    }
+
     function save() {
       const result = { templateName: nameInput.value.trim() };
-      window.liveExtension.closeDialog(JSON.stringify(result));
+      closeWithResult(result);
     }
 
     function cancel() {
-      window.liveExtension.cancelDialog();
+      window.close();
     }
 
     document.addEventListener("keydown", (e) => {
