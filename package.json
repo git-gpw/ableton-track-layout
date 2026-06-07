@@ -1,16 +1,18 @@
 {
-  "name": "set-template",
+  "name": "ableton-track-layout",
   "displayName": "Set Template",
-  "version": "0.1.0",
-  "description": "Save and restore track layouts as reusable templates in Ableton Live",
-  "type": "commonjs",
+  "version": "1.0.0",
+  "description": "Save and restore Ableton Live track layouts as reusable templates",
   "main": "dist/extension.js",
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "type": "module",
   "scripts": {
-    "start": "extensions-cli run --live '/Applications/Ableton Live 12 Beta.app'",
-    "build": "tsc --noEmit && node esbuild.js",
-    "build:prod": "tsc --noEmit && node esbuild.js --production",
-    "dev": "node esbuild.js --watch",
-    "test": "vitest run"
+    "build": "tsc --noEmit && tsx build.ts --production",
+    "build:dev": "tsc --noEmit && tsx build.ts",
+    "start": "npm run build:dev && extensions-cli run",
+    "package": "npm run build && extensions-cli package"
   },
   "keywords": [
     "ableton",
@@ -21,13 +23,14 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@ableton-extensions/sdk": "file:./ableton-extensions-sdk-1.0.0-beta.0.tgz"
+    "@ableton-extensions/sdk": "file:./vendor/ableton-extensions-sdk-1.0.0-beta.0.tgz"
   },
   "devDependencies": {
-    "@ableton-extensions/cli": "file:./ableton-extensions-cli-1.0.0-beta.0.tgz",
-    "@types/node": "^22.0.0",
-    "esbuild": "^0.25.0",
-    "typescript": "^5.5.0",
-    "vitest": "^2.0.0"
+    "@ableton-extensions/cli": "file:./vendor/ableton-extensions-cli-1.0.0-beta.0.tgz",
+    "@types/node": "^24.1.0",
+    "esbuild": "0.28.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.0"
   }
 }

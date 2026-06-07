@@ -2,7 +2,6 @@
 export interface TrackRecord {
   name: string;
   type: "midi" | "audio";
-  color: number;
 }
 
 /** The saved template file format */
