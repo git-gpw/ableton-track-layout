@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .layout {
+      flex: 1;
+      display: flex;
+      gap: 12px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .template-list {
+      width: 180px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #252525;
+    }
+
+    .template-item {
+      padding: 9px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #2d2d2d;
+      font-size: 13px;
+    }
+
+    .template-item:last-child { border-bottom: none; }
+
+    .template-item:hover { background: #2d2d2d; }
+
+    .template-item.selected {
+      background: #f5a623;
+      color: #000;
+    }
+
+    .template-meta {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .template-item.selected .template-meta { color: #5a3a00; }
+
+    .preview {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #252525;
+    }
+
+    .preview-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #555;
+      font-size: 12px;
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-bottom: 1px solid #2d2d2d;
+    }
+
+    .track-row:last-child { border-bottom: none; }
+
+    .track-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .track-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-type {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    button {
+      padding: 7px 16px;
+      border-radius: 4px;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: #ccc;
+    }
+
+    .btn-cancel:hover { background: #3a3a3a; }
+
+    .btn-load {
+      background: #f5a623;
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-load:hover { background: #e69920; }
+    .btn-load:disabled { background: #555; color: #888; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div>
+    <h2>Load Track Template</h2>
+    <p class="subtitle">Select a template to create tracks in the current set</p>
+  </div>
+
+  <div class="layout">
+    <div class="template-list" id="template-list"></div>
+    <div class="preview" id="preview">
+      <div class="preview-empty">Select a template to preview</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-cancel" onclick="cancel()">Cancel</button>
+    <button class="btn-load" id="btn-load" onclick="load()" disabled>Create Tracks</button>
+  </div>
+
+  <script>
+    const templates = window.TEMPLATES || [];
+    let selectedPath = null;
+
+    const listEl = document.getElementById("template-list");
+    const previewEl = document.getElementById("preview");
+    const loadBtn = document.getElementById("btn-load");
+
+    templates.forEach((tmpl) => {
+      const item = document.createElement("div");
+      item.className = "template-item";
+      const date = new Date(tmpl.createdAt).toLocaleDateString();
+      item.innerHTML = `
+        <div>${tmpl.name}</div>
+        <div class="template-meta">${tmpl.trackCount} track${tmpl.trackCount !== 1 ? "s" : ""} · ${date}</div>
+      `;
+      item.addEventListener("click", () => select(tmpl, item));
+      listEl.appendChild(item);
+    });
+
+    function select(tmpl, el) {
+      document.querySelectorAll(".template-item").forEach((i) => i.classList.remove("selected"));
+      el.classList.add("selected");
+      selectedPath = tmpl.path;
+      loadBtn.disabled = false;
+
+      previewEl.innerHTML = "";
+      tmpl.tracks.forEach((t) => {
+        const row = document.createElement("div");
+        row.className = "track-row";
+        row.innerHTML = `
+          <div class="track-swatch" style="background:${t.colorHex}"></div>
+          <span class="track-name">${t.name || "(untitled)"}</span>
+          <span class="track-type">${t.type}</span>
+        `;
+        previewEl.appendChild(row);
+      });
+    }
+
+    function load() {
+      if (!selectedPath) return;
+      window.liveExtension.closeDialog(JSON.stringify({ templatePath: selectedPath }));
+    }
+
+    function cancel() {
+      window.liveExtension.cancelDialog();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !loadBtn.disabled) load();
+      if (e.key === "Escape") cancel();
+    });
+  </script>
+</body>
+</html>

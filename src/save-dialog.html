@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 7px 10px;
+      background: #2d2d2d;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #f5a623;
+    }
+
+    .track-list {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: #252525;
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border-bottom: 1px solid #2d2d2d;
+    }
+
+    .track-row:last-child { border-bottom: none; }
+
+    .track-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .track-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-type {
+      font-size: 11px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    button {
+      padding: 7px 16px;
+      border-radius: 4px;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: #ccc;
+    }
+
+    .btn-cancel:hover { background: #3a3a3a; }
+
+    .btn-save {
+      background: #f5a623;
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-save:hover { background: #e69920; }
+    .btn-save:disabled { background: #555; color: #888; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div>
+    <h2>Save Track Layout</h2>
+    <p class="subtitle" id="track-count"></p>
+  </div>
+
+  <div>
+    <label for="template-name">Template name</label>
+    <input type="text" id="template-name" placeholder="e.g. My Band Setup" autofocus />
+  </div>
+
+  <div class="track-list" id="track-list"></div>
+
+  <div class="actions">
+    <button class="btn-cancel" onclick="cancel()">Cancel</button>
+    <button class="btn-save" id="btn-save" onclick="save()" disabled>Save</button>
+  </div>
+
+  <script>
+    const tracks = window.TRACKS || [];
+    const nameInput = document.getElementById("template-name");
+    const saveBtn = document.getElementById("btn-save");
+    const list = document.getElementById("track-list");
+    const countEl = document.getElementById("track-count");
+
+    countEl.textContent = `${tracks.length} track${tracks.length !== 1 ? "s" : ""} in current set`;
+
+    tracks.forEach((t) => {
+      const row = document.createElement("div");
+      row.className = "track-row";
+      row.innerHTML = `
+        <div class="track-swatch" style="background:${t.colorHex}"></div>
+        <span class="track-name">${t.name || "(untitled)"}</span>
+        <span class="track-type">${t.type}</span>
+      `;
+      list.appendChild(row);
+    });
+
+    nameInput.addEventListener("input", () => {
+      saveBtn.disabled = nameInput.value.trim().length === 0;
+    });
+
+    function save() {
+      const result = { templateName: nameInput.value.trim() };
+      window.liveExtension.closeDialog(JSON.stringify(result));
+    }
+
+    function cancel() {
+      window.liveExtension.cancelDialog();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !saveBtn.disabled) save();
+      if (e.key === "Escape") cancel();
+    });
+  </script>
+</body>
+</html>
